@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!-- 
+    Copyright © 2024 Peter Kaminski <kaminski@istori.com>
+    Licensed under the MIT License
+-->
+<html lang="en">
+<head>
+  <meta name="generator" content="HTML Tidy for HTML5 for Apple macOS version 5.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meridian - A Time Zone Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js"></script>
+  <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .title {
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.1rem;
+            text-align: center;
+        }
+        .subtitle {
+            color: #2d3748;
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+        .input-section {
+            margin-bottom: 2rem;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .input-group {
+            display: flex;
+            gap: 1rem;
+        }
+        input, select {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .timezone-section {
+            position: relative;
+        }
+        .timezone-list {
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+        .copy-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            color: #4a5568;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .copy-button:hover {
+            background-color: #edf2f7;
+        }
+        .copy-button:active {
+            background-color: #e2e8f0;
+        }
+        .copy-icon, .check-icon {
+            width: 16px;
+            height: 16px;
+        }
+        .check-icon {
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .input-group {
+                flex-direction: column;
+            }
+            input, select {
+                width: 100%;
+            }
+        }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      Meridian - A Time Zone Converter
+    </div>
+
+    <div class="subtitle">
+      by Peter Kaminski, version 1.1.0
+    </div>
+
+    <div class="input-section">
+      <label class="input-label">Reference Date/Time (Local)</label>
+      <div class="input-group">
+        <input type="date" id="datePicker"> <select id="timePicker">
+        </select>
+      </div>
+    </div>
+
+    <div class="timezone-section">
+      <div id="timezoneList" class="timezone-list">
+      </div>
+      <button id="copyButton" class="copy-button"><span id="buttonIconContainer"><svg class="copy-icon" viewbox=
+      "0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2">
+      <path d=
+      "M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z">
+      </path>
+      <path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2">
+      </path></svg> <svg class="check-icon" viewbox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12">
+      </polyline></svg></span> Copy</button>
+    </div>
+  </div>
+
+  <div>
+    <h2>About Meridian</h2>
+
+    <p>To use, choose a new reference date/time. The conversions will be updated.</p>
+
+    <p>The conversion runs in your browser on your computer, using the <a href=
+    "https://moment.github.io/luxon/">Luxon</a> JavaScript library. Nothing is sent to the cloud for processing.</p>
+
+    <p>A future version will have a way to select which conversions to display. For now, edit the <code>cities[]</code>
+    array in this HTML file to change the conversion list.</p>
+  </div>
+
+  <footer>
+    <div>
+      © 2024 Peter Kaminski &lt;<a href="mailto:kaminski@istori.com">kaminski@istori.com</a>&gt;
+    </div>
+
+    <div>
+      Open source, licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
+    </div>
+  </footer>
+  <script>
+        const DateTime = luxon.DateTime;
+
+        // Generate time options in 30-minute intervals
+        const timePicker = document.getElementById('timePicker');
+        for (let hour = 0; hour < 24; hour++) {
+            for (let minute of [0, 30]) {
+                const time = DateTime.local().set({ hour, minute });
+                const option = document.createElement('option');
+                option.value = `${hour}:${minute}`;
+                option.textContent = time.toLocaleString(DateTime.TIME_SIMPLE);
+                timePicker.appendChild(option);
+            }
+        }
+
+        // Edit this table to specify cities/time zones for conversion
+        // For allowed cities, see the "TZ identifier" column from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        const cities = [
+            { zone: 'America/Los_Angeles' },
+            { zone: 'America/Chicago' },
+            { zone: 'America/New_York' },
+            { zone: 'UTC' },
+            { zone: 'Europe/Brussels' },
+            { zone: 'Australia/Sydney' }
+        ];
+
+        // Custom function to get timezone abbreviation
+        function getTimezoneAbbr(zonedTime) {
+            const zone = zonedTime.zoneName;
+            // luxon abbreviations don't work for some time zones, some CLDR mismatch
+            // special case those for now
+            if (zone === 'Europe/Brussels') {
+                return zonedTime.isInDST ? 'CEST' : 'CET';
+            }
+            if (zone === 'Australia/Sydney') {
+                return zonedTime.isInDST ? 'AEDT' : 'AEST';
+            }
+            return zonedTime.toFormat('ZZZZ');
+        }
+
+        // Set initial date to today
+        const datePicker = document.getElementById('datePicker');
+        const today = DateTime.local();
+        datePicker.value = today.toFormat('yyyy-MM-dd');
+        timePicker.value = `${today.hour}:${today.minute}`;
+
+        function updateTimes() {
+            const selectedDate = DateTime.fromISO(datePicker.value);
+            const [hours, minutes] = timePicker.value.split(':').map(Number);
+            
+            let dateTime = selectedDate.set({
+                hour: hours,
+                minute: minutes
+            });
+
+            // Create list with date and times
+            const formattedDate = dateTime.toFormat('cccc, d MMMM yyyy');
+            const timesList = cities.map(city => {
+                const zonedTime = dateTime.setZone(city.zone);
+                return `- ${zonedTime.toLocaleString(DateTime.TIME_SIMPLE)} ${getTimezoneAbbr(zonedTime)} (${zonedTime.toFormat('cccc')})`;
+            });
+
+            // Combine date and times with proper spacing
+            document.getElementById('timezoneList').textContent = 
+                formattedDate + '\n\n' + timesList.join('\n');
+        }
+
+        // Copy button functionality
+        const copyButton = document.getElementById('copyButton');
+        const copyIcon = document.querySelector('.copy-icon');
+        const checkIcon = document.querySelector('.check-icon');
+        
+        copyButton.addEventListener('click', async () => {
+            // Copy text
+            const text = document.getElementById('timezoneList').textContent;
+            await navigator.clipboard.writeText(text);
+            
+            // Show check icon, hide copy icon
+            copyIcon.style.display = 'none';
+            checkIcon.style.display = 'block';
+            
+            // Reset icons after 2 seconds
+            setTimeout(() => {
+                copyIcon.style.display = 'block';
+                checkIcon.style.display = 'none';
+            }, 2000);
+        });
+
+        // Add event listeners for date/time changes
+        datePicker.addEventListener('change', updateTimes);
+        timePicker.addEventListener('change', updateTimes);
+
+        // Initial update
+        updateTimes();
+  </script>
+</body>
+</html>
