@@ -113,7 +113,7 @@
     </div>
 
     <div class="subtitle">
-      by Peter Kaminski, version 1.1.0
+      by Peter Kaminski, version 1.1.2
     </div>
 
     <div class="input-section">
@@ -135,7 +135,7 @@
       <path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2">
       </path></svg> <svg class="check-icon" viewbox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2">
       <polyline points="20 6 9 17 4 12">
-      </polyline></svg></span> Copy</button>
+      </polyline></svg></span> <span id="copyButtonText">Copy</span></button>
     </div>
   </div>
 
@@ -237,20 +237,23 @@
         const copyButton = document.getElementById('copyButton');
         const copyIcon = document.querySelector('.copy-icon');
         const checkIcon = document.querySelector('.check-icon');
+        const copyButtonText = document.getElementById('copyButtonText');
         
         copyButton.addEventListener('click', async () => {
             // Copy text
             const text = document.getElementById('timezoneList').textContent;
             await navigator.clipboard.writeText(text);
             
-            // Show check icon, hide copy icon
+            // Show check icon and "Copied" text, hide copy icon
             copyIcon.style.display = 'none';
             checkIcon.style.display = 'block';
-            
-            // Reset icons after 2 seconds
+            copyButtonText.textContent = 'Copied';
+
+            // Reset icons and text after 2 seconds
             setTimeout(() => {
                 copyIcon.style.display = 'block';
                 checkIcon.style.display = 'none';
+                copyButtonText.textContent = 'Copy';
             }, 2000);
         });
 
