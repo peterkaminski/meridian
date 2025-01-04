@@ -1,16 +1,15 @@
 <!doctype html>
 <!-- 
-    Copyright © 2024 Peter Kaminski <kaminski@istori.com>
+    Copyright © 2024-2025 Peter Kaminski <kaminski@istori.com>
     Repo: https://github.com/peterkaminski/meridian
     Licensed under the MIT License
 -->
 <html lang="en">
   <head>
-    <meta name="generator" content="HTML Tidy for HTML5 for Apple macOS version 5.8.0" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meridian - A Time Zone Converter</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.5.0/luxon.min.js"></script>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -107,19 +106,59 @@
           width: 100%;
         }
       }
+      .region-filters {
+        margin: 1rem 0;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        flex-direction: column;
+      }
+      .region-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .region-filter {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .region-filter input[type='checkbox'] {
+        width: auto;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="title">Meridian - A Time Zone Converter</div>
 
-      <div class="subtitle">by Peter Kaminski, version 1.1.2</div>
+      <div class="subtitle">by Peter Kaminski, version 1.2.0</div>
 
       <div class="input-section">
         <label class="input-label">Reference Date/Time (Local)</label>
         <div class="input-group">
           <input type="date" id="datePicker" />
           <select id="timePicker"></select>
+        </div>
+        <div class="region-filters">
+          <div class="region-group">
+            <label class="region-filter">
+              <input type="checkbox" id="americas" checked />
+              Americas
+            </label>
+            <label class="region-filter">
+              <input type="checkbox" id="europe-africa" checked />
+              Europe/Africa
+            </label>
+            <label class="region-filter">
+              <input type="checkbox" id="asia-anz" checked />
+              Asia/ANZ
+            </label>
+          </div>
+          <label class="region-filter">
+            <input type="checkbox" id="show-cities" />
+            Show Cities
+          </label>
         </div>
       </div>
 
@@ -145,12 +184,17 @@
     <div>
       <h2>About Meridian</h2>
 
-      <p>To use, choose a new reference date/time. The conversions will be updated.</p>
+      <p>
+        Meridian shows the same time across a number of time zones around the world. Standard time zone abbreviations
+        are used. They should be recognizable by people living in each time zone.
+      </p>
+
+      <p>To use, choose a new reference date/time. The conversions will be updated. Times are sorted west to east. Click the &quot;Copy&quot; button to copy the list to your clipboard.</p>
 
       <p>
         The conversion runs in your browser on your computer, using the
-        <a href="https://moment.github.io/luxon/">Luxon</a>
-        JavaScript library. Nothing is sent to the cloud for processing.
+        <a href="https://moment.github.io/luxon/">Luxon</a> JavaScript library. Nothing is sent to the cloud for
+        processing.
       </p>
 
       <p>
@@ -158,30 +202,21 @@
         computer.
       </p>
 
-      <p>
-        A future version will have a way to select which conversions to display. For now, edit the
-        <code>cities[]</code>
-        array in this HTML file to change the conversion list.
-      </p>
+      <p>Add or remove cities in the <code>cities[]</code> array in this HTML file to change the conversion list.</p>
     </div>
 
     <footer>
-      <div>
-        © 2024 Peter Kaminski &lt;
-        <a href="mailto:kaminski@istori.com">kaminski@istori.com</a>
-        &gt;
-      </div>
+      <div>© 2024-2025 Peter Kaminski &lt;<a href="mailto:kaminski@istori.com">kaminski@istori.com</a>&gt;</div>
 
       <div>
-        Open source, licensed under the
-        <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
+        Open source, licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
       </div>
 
       <div>
         Hosted at
-        <a href="https://github.com/peterkaminski/meridian" target="_blank">
-          https://github.com/peterkaminski/meridian
-        </a>
+        <a href="https://github.com/peterkaminski/meridian" target="_blank"
+          >https://github.com/peterkaminski/meridian</a
+        >
       </div>
     </footer>
     <script>
@@ -202,26 +237,76 @@
       // Edit this table to specify cities/time zones for conversion
       // For allowed cities, see the "TZ identifier" column from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
       const cities = [
-        { zone: 'America/Los_Angeles' },
-        { zone: 'America/Chicago' },
-        { zone: 'America/New_York' },
-        { zone: 'UTC' },
-        { zone: 'Europe/Brussels' },
-        { zone: 'Australia/Sydney' },
+        { zone: 'Africa/Johannesburg', region: 'europe-africa' },
+        { zone: 'America/Chicago', region: 'americas' },
+        { zone: 'America/Denver', region: 'americas' },
+        { zone: 'America/Los_Angeles', region: 'americas' },
+        { zone: 'America/New_York', region: 'americas' },
+        { zone: 'America/Sao_Paulo', region: 'americas' },
+        { zone: 'Asia/Dubai', region: 'asia-anz' },
+        { zone: 'Asia/Kolkata', region: 'asia-anz' },
+        { zone: 'Asia/Seoul', region: 'asia-anz' },
+        { zone: 'Asia/Shanghai', region: 'asia-anz' },
+        { zone: 'Asia/Tokyo', region: 'asia-anz' },
+        { zone: 'Australia/Perth', region: 'asia-anz' },
+        { zone: 'Australia/Sydney', region: 'asia-anz' },
+        { zone: 'Europe/Berlin', region: 'europe-africa' },
+        { zone: 'Europe/Kyiv', region: 'europe-africa' },
+        { zone: 'Europe/London', region: 'europe-africa' },
+        { zone: 'Europe/Moscow', region: 'europe-africa' },
+        { zone: 'Pacific/Auckland', region: 'asia-anz' },
+        { zone: 'Pacific/Honolulu', region: 'americas' },
+        { zone: 'UTC', region: 'europe-africa' },
       ]
+
+      // Get region checkbox elements
+      const americasCheckbox = document.getElementById('americas')
+      const europeAfricaCheckbox = document.getElementById('europe-africa')
+      const asiaAnzCheckbox = document.getElementById('asia-anz')
+      const showCitiesCheckbox = document.getElementById('show-cities')
+
+      // Function to extract city name from zone
+      function getCityName(zone) {
+        const parts = zone.split('/')
+        return parts[parts.length - 1].replace(/_/g, ' ')
+      }
 
       // Custom function to get timezone abbreviation
       function getTimezoneAbbr(zonedTime) {
         const zone = zonedTime.zoneName
         // luxon abbreviations don't work for some time zones, some CLDR mismatch
-        // special case those for now
-        if (zone === 'Europe/Brussels') {
-          return zonedTime.isInDST ? 'CEST' : 'CET'
+        switch (zone) {
+          case 'Africa/Johannesburg':
+            return 'SAST' // South Africa does not observe DST
+          case 'America/Sao_Paulo':
+            return 'BRT' // Brazil does not observe DST
+          case 'Asia/Dubai':
+            return 'GST' // UAE does not observe DST
+          case 'Asia/Kolkata':
+            return 'IST' // India does not observe DST
+          case 'Asia/Seoul':
+            return 'KST' // South Korea does not observe DST
+          case 'Asia/Shanghai':
+            return 'BJT' // China does not observe DST
+          case 'Asia/Tokyo':
+            return 'JST' // Japan does not observe DST
+          case 'Australia/Perth':
+            return 'AWST' // Western Australia does not observe DST
+          case 'Australia/Sydney':
+            return zonedTime.isInDST ? 'AEDT' : 'AEST'
+          case 'Europe/Berlin':
+            return zonedTime.isInDST ? 'CEST' : 'CET'
+          case 'Europe/Kyiv':
+            return zonedTime.isInDST ? 'EEST' : 'EET'
+          case 'Europe/London':
+            return zonedTime.isInDST ? 'BST' : 'GMT'
+          case 'Europe/Moscow':
+            return 'MSK' // Moscow does not observe DST
+          case 'Pacific/Auckland':
+            return zonedTime.isInDST ? 'NZDT' : 'NZST'
+          default:
+            return zonedTime.toFormat('ZZZZ')
         }
-        if (zone === 'Australia/Sydney') {
-          return zonedTime.isInDST ? 'AEDT' : 'AEST'
-        }
-        return zonedTime.toFormat('ZZZZ')
       }
 
       // Set initial date to today
@@ -239,14 +324,31 @@
           minute: minutes,
         })
 
-        // Create list with date and times
-        const formattedDate = dateTime.toFormat('cccc, d MMMM yyyy')
-        const timesList = cities.map((city) => {
+        // Filter cities based on checked regions
+        const enabledRegions = {
+          americas: americasCheckbox.checked,
+          'europe-africa': europeAfricaCheckbox.checked,
+          'asia-anz': asiaAnzCheckbox.checked,
+        }
+
+        const filteredCities = cities.filter((city) => enabledRegions[city.region])
+
+        // Sort filtered cities
+        const sortedCities = filteredCities.sort((a, b) => {
+          const offsetA = DateTime.now().setZone(a.zone).offset
+          const offsetB = DateTime.now().setZone(b.zone).offset
+          return offsetA - offsetB
+        })
+
+        // Create the times list with only filtered cities
+        const timesList = sortedCities.map((city) => {
           const zonedTime = dateTime.setZone(city.zone)
-          return `- ${zonedTime.toLocaleString(DateTime.TIME_SIMPLE)} ${getTimezoneAbbr(zonedTime)} (${zonedTime.toFormat('cccc')})`
+          const cityName = showCitiesCheckbox.checked ? ` - ${getCityName(city.zone)}` : ''
+          return `- ${zonedTime.toLocaleString(DateTime.TIME_SIMPLE)} ${getTimezoneAbbr(zonedTime)} (${zonedTime.toFormat('cccc')})${cityName}`
         })
 
         // Combine date and times with proper spacing
+        const formattedDate = dateTime.toFormat('cccc, d MMMM yyyy')
         document.getElementById('timezoneList').textContent = formattedDate + '\n\n' + timesList.join('\n')
       }
 
@@ -274,12 +376,21 @@
         }, 2000)
       })
 
-      // Add event listeners for date/time changes
+      // Add event listeners for date/time changes and region filters
       datePicker.addEventListener('change', updateTimes)
       timePicker.addEventListener('change', updateTimes)
+      americasCheckbox.addEventListener('change', updateTimes)
+      europeAfricaCheckbox.addEventListener('change', updateTimes)
+      asiaAnzCheckbox.addEventListener('change', updateTimes)
+      showCitiesCheckbox.addEventListener('change', updateTimes)
 
       // Initial update
       updateTimes()
     </script>
   </body>
 </html>
+<!-- 
+    Copyright © 2024-2025 Peter Kaminski <kaminski@istori.com>
+    Repo: https://github.com/peterkaminski/meridian
+    Licensed under the MIT License
+-->
